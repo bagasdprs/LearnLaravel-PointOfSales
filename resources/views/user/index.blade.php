@@ -1,5 +1,5 @@
 @extends('layouts.main') 
-@section('title', 'Data Categories')
+@section('title', 'Data Users')
 
 @section('content')
      <section class="section">
@@ -11,13 +11,14 @@
               <h5 class="card-title">{{$title ?? ''}}</h5>
               <div class="mt-4 mb-3">
                 <div align="right" class="mb-3">
-                  <a class="btn btn-primary" href="{{route('categories.create')}}">Add Categories</a>
+                  <a class="btn btn-primary" href="{{route('user.create')}}">Add User</a>
                 </div>
                 <table class="table table-bordered text-center">
                   <thead>
                     <tr>
                       <th>No</th>
                       <th>Name</th>
+                      <th>Email</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -25,15 +26,16 @@
                     @php
                     $no=1;
                     @endphp
-                    @foreach ($datas as $data )                   
+                    @foreach ($row as $rowuse )                   
                     <tr>
                       <td>{{$no ++}}</td>
-                      <td>{{$data->category_name}}</td>
+                      <td>{{$rowuse->name}}</td>
+                      <td>{{$rowuse->email}}</td>
                       <td>
-                        <a href="{{route('categories.edit', $data->id)}}" class="btn btn-sm btn-secondary">
+                        <a href="{{route('user.edit', $rowuse->id)}}" class="btn btn-sm btn-secondary">
                           <i class="bi bi-pencil"></i>
                         </a>
-                        <form action="{{route('categories.destroy', $data->id)}}" method="post">
+                        <form action="{{route('user.destroy', $rowuse->id)}}" method="post">
                           @csrf
                           @method('delete')
                           <button class="btn btn-sm btn-warning">

@@ -4,6 +4,8 @@ use App\Http\Controllers\BelajarController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\UserControlller;
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -27,3 +29,6 @@ Route::resource('dashboard', DashboardController::class);
 
 // Categories
 Route::resource('categories', CategoriesController::class);
+
+//Users
+Route::resource('user', UserControlller::class);
