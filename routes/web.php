@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserControlller;
+use App\Http\Controllers\ProductController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -32,3 +33,6 @@ Route::resource('categories', CategoriesController::class);
 
 //Users
 Route::resource('user', UserControlller::class);
+
+// Products
+Route::resource('products', ProductController::class);
