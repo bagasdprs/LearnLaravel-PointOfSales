@@ -6,7 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserControlller;
 use App\Http\Controllers\ProductController;
-
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -36,3 +36,9 @@ Route::resource('user', UserControlller::class);
 
 // Products
 Route::resource('products', ProductController::class);
+
+// Transactions
+Route::resource('pos', TransactionController::class);
+
+//Get Product
+Route::get('get-product/{id}', [TransactionController::class, 'getProduct']);

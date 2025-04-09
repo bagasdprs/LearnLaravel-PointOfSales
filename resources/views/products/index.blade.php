@@ -33,12 +33,13 @@
                     <tr>
                       <td>{{$no ++}}</td>
                       <td>{{$data->product_name}}</td>
-                      <td><img src="{{asset('storage/' . $data->product_photo) }}" alt="" width="150"></td>
+                      <td><img src="{{asset('storage/' . $data->product_photo) }}" alt="" width="70"></td>
                       <td>{{$data->categories->category_name}}</td>
                       <td>{{$data->product_price}}</td>
                       <td>{{$data->is_active}}</td>
                       <td>
-                        <a href="{{route('products.edit', $data->id)}}" class="btn btn-sm btn-secondary">
+                        <div class="d-flex justify-content-center gap-1">
+                            <a href="{{route('products.edit', $data->id)}}" class="btn btn-sm btn-secondary">
                           <i class="bi bi-pencil"></i>
                         </a>
                         <form action="{{route('products.destroy', $data->id)}}" method="post">
@@ -48,6 +49,8 @@
                             <i class="bi bi-trash"></i>
                           </button>
                         </form>
+                        </div>
+                       
                         
                       </td>
                     </tr>
