@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Categories;
 use App\Models\Products;
 use App\Models\Orders;
+use App\Models\orderDetails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -35,20 +36,37 @@ class TransactionController extends Controller
      */
     public function store(Request $request)
     {
+        // code unique : ORD-1004025001
+        $qOrderCode = Orders::max('id');
+        $qOrderCode++;
+        $orderCode = 'ORD-POS' . date('dmY') . sprintf('%03d', $qOrderCode);
         $data = [
-            'category_id' => $request->category_id,
-            'product_name' => $request->product_name,
-            'product_price' => $request->product_price,
-            'product_description' => $request->product_description,
-            'is_active' => $request->is_active,
+            'order_code' => $orderCode,
+            'order_date' => date('Y-m-d'),
+            'order_amount' => $request->grandtotal,
+            'order_change' => 1,
+            'order_status' => 1,
+
+            // 'category_id' => $request->category_id,
+            // 'product_name' => $request->product_name,
+            // 'product_price' => $request->product_price,
+            // 'product_description' => $request->product_description,
+            // 'is_active' => $request->is_active,
         ];
 
-        if ($request->hasFile('product_photo')) {
-            $photo = $request->file('product_photo')->store('products', 'public');
-            $data['product_photo'] = $photo;
-        }
+        $order = Orders::create($data);
 
-        Products::create($data);
+        $qty = $request->qty;
+        foreach ($qty as $key => $data) {
+            orderDetails::create([
+                'order_id' => $order->id,
+                'product_id' => $request->product_id[$key],
+                'qty' => $request->qty[$key],
+                'order_price' => $request->order_price[$key],
+                'order_subtotal' => $request->order_subtotal[$key],
+            ]);
+        }
+        toast('Success', 'Data Successfully Created', 'success');
         return redirect()->to('products');
     }
 
