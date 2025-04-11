@@ -42,3 +42,6 @@ Route::resource('pos', TransactionController::class);
 
 //Get Product
 Route::get('get-product/{id}', [TransactionController::class, 'getProduct']);
+
+//Print Struk
+Route::get('print/{id}', [TransactionController::class, 'printStruk'])->name('print');

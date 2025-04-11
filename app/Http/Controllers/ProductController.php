@@ -13,15 +13,36 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+
+    // CARA 1
+    // public function index()
+    // {
+
+    //     $title = "Data Products";
+    //     // select * from product LEFT JOIN categories ON categories.id = products.category_id
+    //     // ORM : Object Relational Mapping
+    //     // $datas = Products::with('categories')->get();
+    //     $categories = Categories::all();
+    //     $datas = Products::with('categories')->orderBy('product_name', 'asc')->get();
+    //     return view('products.index', compact('title', 'datas', 'categories'));
+    // }
+
+    // CARA 2
+    public function index(Request $request)
     {
         $title = "Data Products";
-        // select * from product LEFT JOIN categories ON categories.id = products.category_id
-        // ORM : Object Relational Mapping
-        $datas = Products::with('categories')->get();
-        return view('products.index', compact('title', 'datas'));
-    }
+        $categories = Categories::all();
 
+        $query = Products::with('categories')->orderBy('product_name', 'asc');
+
+        if ($request->has('category') && $request->category != '') {
+            $query->where('category_id', $request->category);
+        }
+
+        $datas = $query->get();
+
+        return view('products.index', compact('title', 'datas', 'categories'));
+    }
     /**
      * Show the form for creating a new resource.
      */

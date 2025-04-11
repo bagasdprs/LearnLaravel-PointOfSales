@@ -2,7 +2,7 @@
 @section('title', 'Point Of Sale')
 @section('content')
     <section class="section">
-        <form action="{{ route('products.store') }}" method="post" enctype="multipart/form-data">
+        <form action="{{ route('pos.store') }}" method="post" enctype="multipart/form-data">
             <div class="row">
                 <div class="col-lg-5">
                     <div class="card">

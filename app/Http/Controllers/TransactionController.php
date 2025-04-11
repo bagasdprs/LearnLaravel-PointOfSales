@@ -47,17 +47,13 @@ class TransactionController extends Controller
             'order_change' => 1,
             'order_status' => 1,
 
-            // 'category_id' => $request->category_id,
-            // 'product_name' => $request->product_name,
-            // 'product_price' => $request->product_price,
-            // 'product_description' => $request->product_description,
-            // 'is_active' => $request->is_active,
         ];
 
         $order = Orders::create($data);
 
         $qty = $request->qty;
         foreach ($qty as $key => $data) {
+
             orderDetails::create([
                 'order_id' => $order->id,
                 'product_id' => $request->product_id[$key],
@@ -67,7 +63,7 @@ class TransactionController extends Controller
             ]);
         }
         toast('Success', 'Data Successfully Created', 'success');
-        return redirect()->to('products');
+        return redirect()->to('pos');
     }
 
     /**
@@ -75,7 +71,11 @@ class TransactionController extends Controller
      */
     public function show(string $id)
     {
-        //
+        // Order
+        $order = Orders::findOrFail($id);
+        $orderDetails = orderDetails::with('product')->where('order_id', $id)->get();
+        $title = "Order Details of " . $order->order_code;
+        return view('pos.show', compact('order', 'orderDetails', 'title'));
     }
 
     /**
@@ -141,5 +141,13 @@ class TransactionController extends Controller
         $products = Products::where('category_id', $category_id)->get();
         $response = ['status' => 'success', 'message' => 'Fetch product successfully', 'data' => $products];
         return response()->json($response, 200);
+    }
+
+    public function printStruk($id)
+    {
+        $order = Orders::findOrFail($id);
+        $orderDetails = orderDetails::with('product')->where('order_id', $id)->get();
+        $title = "Order Details of " . $order->order_code;
+        return view('pos.print-struk', compact('order', 'orderDetails', 'title'));
     }
 }
