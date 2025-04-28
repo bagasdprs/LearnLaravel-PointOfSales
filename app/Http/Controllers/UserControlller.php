@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Http\Request;
 
 class UserControlller extends Controller
@@ -13,7 +14,7 @@ class UserControlller extends Controller
     public function index()
     {
         $title = "Data Users";
-        $row = User::get();
+        $row = User::with('role')->get();
         return view('user.index', compact('title', 'row'));
     }
 
@@ -22,7 +23,8 @@ class UserControlller extends Controller
      */
     public function create()
     {
-        return view('user.create');
+        $role = Role::orderBy('id', 'asc')->get();
+        return view('user.create', compact('role'));
     }
 
     /**
@@ -31,6 +33,7 @@ class UserControlller extends Controller
     public function store(Request $request)
     {
         User::create([
+            'role_id' => $request->role_id,
             'name' => $request->name,
             'email' => $request->email,
             'password' => $request->password,
@@ -52,7 +55,8 @@ class UserControlller extends Controller
     public function edit(string $id)
     {
         $edit = User::find($id);
-        return view('user.edit', compact('edit'));
+        $role = Role::orderBy('id', 'asc')->get();
+        return view('user.edit', compact('edit', 'role'));
     }
 
     /**
@@ -61,12 +65,13 @@ class UserControlller extends Controller
     public function update(Request $request, string $id)
     {
         $user = User::find($id);
+        $user->role_id = $request->role_id;
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = $request->password;
         $user->save();
 
-        return redirect()->ti('user');
+        return redirect()->to('user');
     }
 
     /**

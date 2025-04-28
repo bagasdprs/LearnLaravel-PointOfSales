@@ -19,7 +19,7 @@ class TransactionController extends Controller
     {
         $title = "Orders";
         $datas = Orders::orderby('id', 'desc')->get();
-        return view('pos.index', compact('title', 'datas'));
+        return view('kasir.index', compact('title', 'datas'));
     }
 
     /**
