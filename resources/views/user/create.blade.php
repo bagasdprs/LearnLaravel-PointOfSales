@@ -11,7 +11,7 @@
                             @csrf
                             <div class="mb-3">
                                 <label for="role" class="col-form-label">Role</label>
-                                <select name="role" id="role" class="form-control" required>
+                                <select name="role_id" id="role_id" class="form-control" required>
                                     <option value="">Select Role</option>
                                     @foreach ($role as $roles)
                                         <option value="{{ $roles->id }}">{{ $roles->role_name }}</option>

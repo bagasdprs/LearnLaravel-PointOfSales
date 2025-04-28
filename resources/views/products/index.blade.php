@@ -8,6 +8,11 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">{{ $title ?? '' }}</h5>
+                        <div class="d-flex justify-content-end mb-3">
+                            <a class="btn btn-primary" href="{{ route('products.create') }}">
+                                Add Product
+                            </a>
+                        </div>
                         <div class="mt-4 mb-3">
                             <form method="GET" action="{{ route('products.index') }}">
                                 <div class="row">

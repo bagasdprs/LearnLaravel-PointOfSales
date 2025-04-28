@@ -22,15 +22,23 @@ class LoginController extends Controller
         $credential = $request->only('email', 'password');
         // Auth : class
         if (Auth::attempt($credential)) {
-            return redirect('dashboard')->with('success', 'Success Login');
+            if (auth()->user()->role_id == 3) {
+                return redirect('kasir')->with('success', 'Success Login');
+            } elseif (auth()->user()->role_id == 2) {
+                return redirect('pimpinan')->with('success', 'Success Login');
+            } elseif (auth()->user()->role_id == 1) {
+                return redirect('dashboard')->with('success', 'Success Login');
+            }
         } else {
             return back()->withErrors(['email' => 'Please check your credentials'])->withInput();
         }
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
         Auth::logout();
-        return redirect()->to('login');
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->to('/');
     }
 }

@@ -8,6 +8,7 @@ use App\Models\Orders;
 use App\Models\orderDetails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Validator;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class TransactionController extends Controller
@@ -37,33 +38,53 @@ class TransactionController extends Controller
     public function store(Request $request)
     {
         // code unique : ORD-1004025001
-        $qOrderCode = Orders::max('id');
-        $qOrderCode++;
-        $orderCode = 'ORD-POS' . date('dmY') . sprintf('%03d', $qOrderCode);
-        $data = [
-            'order_code' => $orderCode,
-            'order_date' => date('Y-m-d'),
-            'order_amount' => $request->grandtotal,
-            'order_change' => 1,
-            'order_status' => 1,
+        // 
+        // return $request->all();
+        $validation  = Validator::make($request->all(), [
+            'cart' => 'required',
+            'cash' => 'required|numeric|min:0',
+            'total' => 'required|numeric|min:0',
+            'change' => 'required|numeric|min:0'
+        ]);
 
-        ];
+        if ($validation->fails()) {
+            return redirect()->back()
+                ->withErrors($validation)
+                ->withInput();
+        }
 
-        $order = Orders::create($data);
+        $cart = json_decode($request->cart, true);
 
-        $qty = $request->qty;
-        foreach ($qty as $key => $data) {
+        $latestIdOrder = Orders::max('id') + 1;
 
-            orderDetails::create([
+        $order = Orders::create([
+            'order_code' => $this->generateOrderCode($latestIdOrder),
+            'order_date' => now(),
+            'order_amount' => $request->total,
+            'order_change' =>  $request->change,
+            'order_status' =>  1,
+        ]);
+
+        foreach ($cart as $item) {
+            OrderDetails::create([
                 'order_id' => $order->id,
-                'product_id' => $request->product_id[$key],
-                'qty' => $request->qty[$key],
-                'order_price' => $request->order_price[$key],
-                'order_subtotal' => $request->order_subtotal[$key],
+                'product_id' => $item['productId'],
+                'qty' => $item['qty'],
+                'order_price' => $item['price'],
+                'order_subtotal' => $item['qty'] * $item['price'],
             ]);
         }
-        toast('Success', 'Data Successfully Created', 'success');
-        return redirect()->to('pos');
+
+        Alert::success('Success', 'Transaction successful');
+        return redirect()->route('kasir');
+    }
+
+    private function generateOrderCode($orderId)
+    {
+        $prefix = 'POS';
+        $date = now()->format('Ymd');
+
+        return "{$prefix}-{$date}-" . str_pad($orderId, 6, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -136,18 +157,56 @@ class TransactionController extends Controller
         return redirect()->to('products');
     }
 
-    public function getProduct($category_id)
+    // public function getProduct($category_id)
+    // {
+    //     $products = Products::where('category_id', $category_id)->get();
+    //     $response = ['status' => 'success', 'message' => 'Fetch product successfully', 'data' => $products];
+    //     return response()->json($response, 200);
+    // }
+
+    // public function printStruk($id)
+    // {
+    //     $order = Orders::findOrFail($id);
+    //     $orderDetails = orderDetails::with('product')->where('order_id', $id)->get();
+    //     $title = "Order Details of " . $order->order_code;
+    //     return view('pos.print-struk', compact('order', 'orderDetails', 'title'));
+    // }
+
+    // public function report()
+    // {
+    //     $datas = Orders::with('orderDetails')->get();
+    //     return view('pimpinan.report', compact('datas'));
+    // }
+
+    public function report(Request $request)
     {
-        $products = Products::where('category_id', $category_id)->get();
-        $response = ['status' => 'success', 'message' => 'Fetch product successfully', 'data' => $products];
-        return response()->json($response, 200);
+        $query = Orders::with('orderDetails');
+
+        if ($request->filter) {
+            $today = now();
+
+            if ($request->filter == 'daily') {
+                $query->whereDate('order_date', $today);
+            } elseif ($request->filter == 'daily') {
+                $query->whereBetween('order_date', [$today->startOfWeek(), $today->endOfWeek()]);
+            } elseif ($request->filter == 'weekly') {
+                $startDate = now()->subDays(14);
+                $query->whereBetween('order_date', [$startDate, now()]);
+            } elseif ($request->filter == 'monthly') {
+                $query->whereMonth('order_date', $today->month)->whereYear('order_date', $today->year);
+            } elseif ($request->filter == 'yearly') {
+                $query->whereYear('order_date', $today->year);
+            }
+        }
+
+        $datas = $query->orderBy('order_date', 'desc')->get();
+        return view('pimpinan.index', compact('datas'));
     }
 
-    public function printStruk($id)
+
+    public function stock()
     {
-        $order = Orders::findOrFail($id);
-        $orderDetails = orderDetails::with('product')->where('order_id', $id)->get();
-        $title = "Order Details of " . $order->order_code;
-        return view('pos.print-struk', compact('order', 'orderDetails', 'title'));
+        $datas = Products::all(); // Ambil semua produk
+        return view('pimpinan.stock', compact('datas'));
     }
 }

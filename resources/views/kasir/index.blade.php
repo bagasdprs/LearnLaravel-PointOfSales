@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tailwind POS</title>
+    <title>POS | PPKD JakPus</title>
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/kasir/style.css') }}">
     <link rel="shortcut icon" href="{{ asset('assets/kasir/favicon.ico') }}" type="image/x-icon">
@@ -14,7 +14,7 @@
     <script src="{{ asset('assets/kasir/script.js') }}"></script>
 </head>
 
-<body class="bg-blue-gray-50" x-data="initApp()" x-init="initDatabase()">
+<body class="bg-blue-gray-50" x-data="initApp({{ json_encode($products) }})" x-init="initDatabase()">
     <!-- noprint-area -->
     <div class="hide-print flex flex-row h-screen antialiased text-blue-gray-800">
         <!-- left sidebar -->
@@ -100,6 +100,23 @@
                             </span>
                         </a>
                     </li>
+                    <li>
+                        <form action="{{ route('logout') }}" method="GET" class="inline">
+                            @csrf
+                            <button type="submit"
+                                class="flex items-center justify-center text-cyan-200 hover:text-cyan-100 h-10 w-10 focus:outline-none">
+                                <span
+                                    class="flex items-center justify-center text-cyan-100 hover:bg-red-400 h-12 w-12 rounded-2xl">
+                                    <!-- Logout Icon -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
+                                    </svg>
+                                </span>
+                            </button>
+                        </form>
+                    </li>
                 </ul>
                 <a href="https://github.com/emsifa/tailwind-pos" target="_blank"
                     class="mt-auto flex items-center justify-center text-cyan-200 hover:text-cyan-100 h-10 w-10 focus:outline-none">
@@ -139,7 +156,7 @@
                                         d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
                                 </svg>
                                 <p class="text-xl">
-                                    YOU DON'T HAVE
+                                    YOU DONT HAVE
                                     <br />
                                     ANY PRODUCTS TO SHOW
                                 </p>
@@ -165,8 +182,9 @@
                                 <div role="button"
                                     class="select-none cursor-pointer transition-shadow overflow-hidden rounded-2xl bg-white shadow hover:shadow-lg"
                                     :title="product.name" x-on:click="addToCart(product)">
-                                    <img :src="product.image" :alt="product.name">
-                                    <div class="flex pb-3 px-3 text-sm -mt-3">
+                                    <img :src="'{{ asset('storage/') }}/' + product.image" :alt="product.name"
+                                        class="rounded-t-2xl h-64 w-full bg-white shadow object-cover">
+                                    <div class="flex pb-3 px-3 text-sm mt-3">
                                         <p class="flex-grow truncate mr-1" x-text="product.name"></p>
                                         <p class="nowrap font-semibold" x-text="priceFormat(product.price)"></p>
                                     </div>
@@ -209,6 +227,7 @@
                                     x-text="getItemsCount()"></div>
                             </div>
                             <div class="flex-grow px-8 text-right text-lg py-4 relative">
+
                                 <!-- trash button -->
                                 <button x-on:click="clear()"
                                     class="text-blue-gray-300 hover:text-pink-500 focus:outline-none">
@@ -225,7 +244,7 @@
                             <template x-for="item in cart" :key="item.productId">
                                 <div
                                     class="select-none mb-3 bg-blue-gray-50 rounded-lg w-full text-blue-gray-700 py-2 px-2 flex justify-center">
-                                    <img :src="item.image" alt=""
+                                    <img :src="'{{ asset('storage/') }}/' + item.image" alt=""
                                         class="rounded-lg h-10 w-10 bg-white shadow mr-2">
                                     <div class="flex-grow">
                                         <h5 class="text-sm" x-text="item.name"></h5>
@@ -269,7 +288,7 @@
                             <div class="flex text-lg font-semibold">
                                 <div class="flex-grow text-left">CASH</div>
                                 <div class="flex text-right">
-                                    <div class="mr-2">Rp</div>
+                                    <div class="mr-2">Rp. </div>
                                     <input x-bind:value="numberFormat(cash)"
                                         x-on:keyup="updateCash($event.target.value)" type="text"
                                         class="w-28 text-right bg-white shadow rounded-lg focus:bg-white focus:shadow-lg px-2 focus:outline-none">
@@ -388,9 +407,8 @@
                 x-transition:leave-end="opacity-0 transform scale-90">
                 <div id="receipt-content" class="text-left w-full text-sm p-6 overflow-auto">
                     <div class="text-center">
-                        <img src="img/receipt-logo.png" alt="Tailwind POS" class="mb-3 w-8 h-8 inline-block">
-                        <h2 class="text-xl font-semibold">TAILWIND POS</h2>
-                        <p>CABANG KONOHA SELATAN</p>
+                        <h2 class="text-xl font-semibold">PPKD JakPus | POS</h2>
+                        <p>CABANG CAYANG CEMUANYA</p>
                     </div>
                     <div class="flex mt-4 text-xs">
                         <div class="flex-grow">No: <span x-text="receiptNo"></span></div>
@@ -440,10 +458,18 @@
                         </div>
                     </div>
                 </div>
-                <div class="p-4 w-full">
-                    <button class="bg-cyan-500 text-white text-lg px-4 py-3 rounded-2xl w-full focus:outline-none"
-                        x-on:click="printAndProceed()">PROCEED</button>
-                </div>
+                <form method="POST" action="{{ route('kasir.store') }}" x-ref="checkoutForm">
+                    @csrf
+                    <input type="hidden" name="cart" :value="JSON.stringify(cart)">
+                    <input type="hidden" name="cash" :value="cash">
+                    <input type="hidden" name="total" :value="getTotalPrice()">
+                    <input type="hidden" name="change" :value="change">
+                    <input type="hidden" name="order_code" :value="receiptNo">
+                    <div class="p-4 w-full">
+                        <button class="bg-blue-500 text-white text-lg px-4 py-3 rounded-2xl w-full focus:outline-none"
+                            x-on:click="printAndProceed()">PROCEED</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

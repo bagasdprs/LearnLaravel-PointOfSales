@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Categories;
+use App\Models\orderDetails;
 use App\Models\Products;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -42,6 +43,21 @@ class ProductController extends Controller
         $datas = $query->get();
 
         return view('products.index', compact('title', 'datas', 'categories'));
+    }
+
+    public function searchProduct()
+    {
+        $products = Products::where('is_active', 1)->get()->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->product_name,
+                'price' => (int)$product->product_price,
+                'image' => $product->product_photo,
+                'option' => '',
+
+            ];
+        });
+        return view('kasir.index', compact('products'));
     }
     /**
      * Show the form for creating a new resource.
@@ -130,6 +146,7 @@ class ProductController extends Controller
     public function destroy(string $id)
     {
         $product = Products::find($id);
+        $orderDetails = orderDetails::where('product_id', $id)->delete();
         // delete photo from storage
         File::delete(public_path('storage/' . $product->product_photo));
         $product->delete();
